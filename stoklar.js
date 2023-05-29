@@ -13,7 +13,7 @@ const getStok = (request, response) => {
                 response.status(500).send(error)
                 return
             }
-            response.status(200).json(results.rows);
+            response.status(200).json(results.rows.map((row, index) => {row.id = index; return row;}));
             return;
         });
     }
@@ -26,7 +26,7 @@ const getStok = (request, response) => {
 const createStok = (request, response) => {
     // console.log(request.get('user_id'))
     if (request.get('user_id')) {
-        queryString = `INSERT INTO Stok VALUES(DEFAULT, '${request.body.isim}', '${request.body.adres}', '12339399300', '${request.body.telefon_no}', '${request.body.acilis_saati}', '${request.body.kapanis_saati}');`;
+        queryString = `INSERT INTO STOKLAR VALUES('${request.body.adet}', '${request.body.eczane_id}','${request.body.urun_id}');`;
         pool.query(queryString, (error, results) => {
             if (error) {
                 response.status(500).send(queryString)
@@ -47,14 +47,12 @@ const updateStok = (request, response) => {
     // console.log(request.get('user_id'))
     if (request.get('user_id')) {
         queryString =
-            "UPDATE Stok SET ";
-        queryString += request.body.yonetici_id ? " yonetici_id='" + request.body.yonetici_id + "'," : "";
-        queryString += request.body.isim ? " isim='" + request.body.isim + "'," : "";
-        queryString += request.body.adres ? " adres='" + request.body.adres + "'," : "";
-        queryString += request.body.acilis_saati ? " acilis_saati='" + request.body.acilis_saati + "'," : "";
-        queryString += request.body.kapanis_saati ? " kapanis_saati='" + request.body.kapanis_saati + "'" : "";
+            "UPDATE STOKLAR SET ";
+        queryString += request.body.adet ? " adet='" + request.body.adet + "'," : "";
+        queryString += request.body.eczane_id ? " eczane_id='" + request.body.eczane_id + "'," : "";
+        queryString += request.body.urun_id ? " urun_id='" + request.body.urun_id + "'," : "";
         queryString = queryString.replace(/,+$/, '');
-        queryString += " WHERE Stok_id='" + request.body.Stok_id + "';";
+        queryString += " WHERE urun_id='" + request.body.urun_id + "' AND eczane_id='" + request.body.eczane_id + "';";
         pool.query(queryString, (error, results) => {
             if (error) {
                 response.status(500).send(queryString)
@@ -75,13 +73,13 @@ const updateStok = (request, response) => {
 const deleteStok = (request, response) => {
     // console.log(request.get('user_id'))
     queryString =
-        `DELETE FROM Stok WHERE Stok_id='${request.body.Stok_id}';`;
+        `DELETE FROM STOKLAR WHERE urun_id='${request.body.urun_id}' AND eczane_id='${request.body.eczane_id}';`;
     pool.query(queryString, (error, results) => {
         if (error) {
             response.status(500).send(error)
             return
         }
-        response.status(200).json(results.rows);
+        response.status(200).send('successfully deleted');
         return;
     });
 };

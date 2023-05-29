@@ -23,7 +23,7 @@ const getUrun = (request, response) => {
 const createUrun = (request, response) => {
     // console.log(request.get('user_id'))
     if (request.get('user_id')) {
-        queryString = `INSERT INTO Urun VALUES(DEFAULT, '${request.body.urun_turu}', '${request.body.urun_adı}');`;
+        queryString = `INSERT INTO Urun VALUES(DEFAULT, '${request.body.urun_turu}', '${request.body.urun_adı}', '${request.body.fiyat}');`;
         pool.query(queryString, (error, results) => {
             if (error) {
                 response.status(500).send(queryString)
@@ -54,6 +54,7 @@ const updateUrun = (request, response) => {
             "UPDATE Urun SET ";
         queryString += request.body.urun_turu ? " urun_turu='" + request.body.urun_turu + "'," : "";
         queryString += request.body.urun_adı ? " urun_adı='" + request.body.urun_adı + "'," : "";
+        queryString += request.body.fiyat ? " fiyat='" + request.body.fiyat + "'," : "";
         
         queryString = queryString.replace(/,+$/, '');
         queryString += " WHERE urun_id='" + request.body.urun_id + "';";

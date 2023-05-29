@@ -6,9 +6,11 @@ const sessions = require("express-session");
 const { query } = require("express");
 const { getEczane, updateEczane, deleteEczane, createEczane } = require("./eczane");
 const { getUrun, updateUrun, deleteUrun, createUrun } = require("./urun");
-const { getStok, updateStok, deleteStok, createStok } = require("./stok");
-const { getKisi, updateKisi, deleteKisi, createKisi } = require("./kisi");
+const { getStok, updateStok, deleteStok, createStok } = require("./stoklar");
+const { getKisi, updateKisi, deleteKisi, createKisi } = require("./kisiler");
 const { getCalisan, createCalisan, updateCalisan, deleteCalisan } = require("./calisanlar");
+const { getKullanici, createKullanici, updateKullanici, deleteKullanici } = require("./kullanicilar");
+const { getSatis, createSatis, updateSatis, deleteSatis } = require("./satislar");
 
 const app = express();
 app.use(cors());
@@ -35,28 +37,11 @@ const getFromDB = (request, response) => {
     }
   );
 };
-const getEczaneIDByUserId = (request, response) => {
-  pool.query(
-      `SELECT * FROM ECZANE WHERE yonetici_id=${request.get('user_id')};`,
-      (error, results) => {
-          if (error) {
-              response.status(500).send("Error With the registeration:\n" + error);
-          } else {
-              response.status(200).send(results.rows[0].eczane_id);
-          }
-      }
-  );
-};
 
 const register = (request, response) => {
   pool.query(
-      "INSERT INTO KULLANICILAR VALUES('" +
-      request.body.user_id +
-      "', '" +
-      request.body.username +
-      "','" +
-      md5(request.body.password) +
-      "', 'kullanici');",
+      `INSERT INTO KULLANICILAR VALUES('${request.body.user_id}', '${request.body.username}','${md5(request.body.password)}', NULL);
+       INSERT INTO KISILER VALUES ('${request.body.user_id}', '${request.body.ad}','${request.body.soyad}', '${request.body.adres}');`,
       (error, results) => {
           if (error) {
               response.status(500).send("Error With the registeration:\n" + error);
@@ -99,12 +84,10 @@ const login = (req, res) => {
 };
 
 const logout = (req, res) => {
-  if (!req.session.user_id) {
+  if (!req.get('user_id')) {
     res.status(400).send("nobody is logged in");
     return;
   }
-  if (req.session.user_id) req.session.user_id = "";
-  if (req.session.yetki) req.session.yetki = "";
   res.status(200).send("successfully logged out");
 };
 app.get("/getFromDB", getFromDB);
@@ -137,6 +120,16 @@ app.get("/calisan", getCalisan);
 app.post("/calisan", createCalisan);
 app.put("/calisan", updateCalisan);
 app.delete("/calisan", deleteCalisan);
+
+app.get("/kullanici", getKullanici);
+app.post("/kullanici", createKullanici);
+app.put("/kullanici", updateKullanici);
+app.delete("/kullanici", deleteKullanici);
+
+app.get("/satis", getSatis);
+app.post("/satis", createSatis);
+app.put("/satis", updateSatis);
+app.delete("/satis", deleteSatis);
 
 app.post("/user", (req, res) => {
   console.log(req.body);

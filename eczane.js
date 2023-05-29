@@ -1,3 +1,4 @@
+const md5 = require("md5");
 const pool = require("./db")
 
 const getEczane = (request, response) => {
@@ -27,10 +28,11 @@ const getEczane = (request, response) => {
 const createEczane = (request, response) => {
     // console.log(request.get('user_id'))
     if (request.get('user_id')) {
-        queryString = `INSERT INTO ECZANE VALUES(DEFAULT, '${request.body.isim}', '${request.body.adres}', '${request.body.yonetici_id}', '${request.body.telefon_no}', '${request.body.acilis_saati}', '${request.body.kapanis_saati}');`;
+        queryString = `INSERT INTO ECZANE VALUES(DEFAULT, '${request.body.isim}', '${request.body.adres}', '${request.body.yonetici_id}', '${request.body.telefon_no}', '${request.body.acilis_saati}', '${request.body.kapanis_saati}');\n`;
+        queryString += `UPDATE KULLANICILAR SET yetki='yonetici' WHERE user_id='${request.body.yonetici_id}';`;
         pool.query(queryString, (error, results) => {
             if (error) {
-                response.status(500).send(queryString)
+                response.status(500).send(error)
                 return
             }
             queryString2 = 'Select * From Eczane Order By eczane_id DESC;'
@@ -67,7 +69,7 @@ const updateEczane = (request, response) => {
         queryString += " WHERE eczane_id='" + request.body.eczane_id + "';";
         pool.query(queryString, (error, results) => {
             if (error) {
-                response.status(500).send(queryString)
+                response.status(500).send(error)
                 return
             }
             response.status(200).send('update successfull');
